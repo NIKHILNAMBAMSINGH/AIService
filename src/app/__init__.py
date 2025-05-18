@@ -1,12 +1,24 @@
-from flask import Flask
-from flask import request,jsonify
+from flask import Flask, request, jsonify
+import sys
+import os
 
-
-app=Flask(__name__)
+# Add src to sys.path
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
+from src.app.messageService import MessageService
+app = Flask(__name__)
 app.config.from_pyfile('config.py')
 
-@app.route('/v1/ds/message/',methods=['POST'])
-def handle_message():
-    message=request.json.get('message')
-    result=messageService.process_message(message)
+messageService = MessageService()
 
+@app.route('/v1/ds/message/', methods=['POST'])
+def handle_message():
+    message = request.json.get('message')
+    result = messageService.process_message(message)
+    return jsonify(result.dict())
+
+@app.route('/', methods=['GET'])
+def handle_get():
+    return "Hello World"  # ✅ FIXED: return a string instead of just print()
+
+if __name__ == "__main__":
+    app.run(host="localhost", port=8080, debug=True)
